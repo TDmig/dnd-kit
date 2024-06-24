@@ -1,9 +1,8 @@
-import {createContext} from 'react';
-
 import {noop} from '../utilities/other';
 import {defaultMeasuringConfiguration} from '../components/DndContext/defaults';
 import {DroppableContainersMap} from './constructors';
 import type {InternalContextDescriptor, PublicContextDescriptor} from './types';
+import {nano, useNano} from '../utilities/state/nano-state';
 
 export const defaultPublicContext: PublicContextDescriptor = {
   activatorEvent: null,
@@ -45,10 +44,14 @@ export const defaultInternalContext: InternalContextDescriptor = {
   measureDroppableContainers: noop,
 };
 
-export const InternalContext = createContext<InternalContextDescriptor>(
+const InternalStateNano = nano<InternalContextDescriptor>(
   defaultInternalContext
 );
+export const useInternalState = () => useNano(InternalStateNano);
+export const setInternalState = (newInternalState: InternalContextDescriptor) =>
+  InternalStateNano.set(newInternalState);
 
-export const PublicContext = createContext<PublicContextDescriptor>(
-  defaultPublicContext
-);
+const PublicStateNano = nano<PublicContextDescriptor>(defaultPublicContext);
+export const usePublicState = () => useNano(PublicStateNano);
+export const setPublicState = (newPublicState: PublicContextDescriptor) =>
+  PublicStateNano.set(newPublicState);

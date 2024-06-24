@@ -21,14 +21,14 @@ import type {Transform} from '@dnd-kit/utilities';
 
 import {
   Action,
-  PublicContext,
-  InternalContext,
   PublicContextDescriptor,
   InternalContextDescriptor,
   getInitialState,
   reducer,
+  setInternalState,
+  setPublicState,
 } from '../../store';
-import {DndMonitorContext, useDndMonitorProvider} from '../DndMonitor';
+import {useDndMonitorProvider} from '../DndMonitor';
 import {
   useAutoScroller,
   useCachedNode,
@@ -84,6 +84,8 @@ import {
   useMeasuringConfiguration,
 } from './hooks';
 import type {MeasuringConfiguration} from './types';
+import {nano, useNano} from '../../utilities/state/nano-state';
+import { dispatchDndMonitorEvent } from '../DndMonitor/useDndMonitorProvider';
 
 export interface Props {
   id?: string;
@@ -119,11 +121,16 @@ interface DndEvent extends Event {
   };
 }
 
-export const ActiveDraggableContext = createContext<Transform>({
+export const defaultActiveDraggable: Transform = {
   ...defaultCoordinates,
   scaleX: 1,
   scaleY: 1,
-});
+};
+
+const ActiveDraggableStateNano = nano<Transform>(defaultActiveDraggable);
+export const useActiveDraggableState = () => useNano(ActiveDraggableStateNano);
+export const setActiveDraggableState = (newActiveDraggableState: Transform) =>
+  ActiveDraggableStateNano.set(newActiveDraggableState);
 
 enum Status {
   Uninitialized,
@@ -144,8 +151,6 @@ export const DndContext = memo(function DndContext({
 }: Props) {
   const store = useReducer(reducer, undefined, getInitialState);
   const [state, dispatch] = store;
-  const [dispatchMonitorEvent, registerMonitorListener] =
-    useDndMonitorProvider();
   const [status, setStatus] = useState<Status>(Status.Uninitialized);
   const isInitialized = status === Status.Initialized;
   const {
@@ -319,6 +324,8 @@ export const DndContext = memo(function DndContext({
     activeNodeRect
   );
 
+  useEffect(() => setActiveDraggableState(transform), [transform]);
+
   const instantiateSensor = useCallback(
     (
       event: React.SyntheticEvent,
@@ -370,7 +377,7 @@ export const DndContext = memo(function DndContext({
               initialCoordinates,
               active: id,
             });
-            dispatchMonitorEvent({type: 'onDragStart', event});
+            dispatchDndMonitorEvent({type: 'onDragStart', event});
           });
         },
         onMove(coordinates) {
@@ -430,7 +437,7 @@ export const DndContext = memo(function DndContext({
               const handler = latestProps.current[eventName];
 
               handler?.(event);
-              dispatchMonitorEvent({type: eventName, event});
+              dispatchDndMonitorEvent({type: eventName, event});
             }
           });
         };
@@ -518,7 +525,7 @@ export const DndContext = memo(function DndContext({
 
       unstable_batchedUpdates(() => {
         onDragMove?.(event);
-        dispatchMonitorEvent({type: 'onDragMove', event});
+        dispatchDndMonitorEvent({type: 'onDragMove', event});
       });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -569,7 +576,7 @@ export const DndContext = memo(function DndContext({
       unstable_batchedUpdates(() => {
         setOver(over);
         onDragOver?.(event);
-        dispatchMonitorEvent({type: 'onDragOver', event});
+        dispatchDndMonitorEvent({type: 'onDragOver', event});
       });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -621,7 +628,7 @@ export const DndContext = memo(function DndContext({
     scrollableAncestorRects,
   });
 
-  const publicContext = useMemo(() => {
+  useEffect(() => {
     const context: PublicContextDescriptor = {
       active,
       activeNode,
@@ -642,7 +649,7 @@ export const DndContext = memo(function DndContext({
       windowRect,
     };
 
-    return context;
+    setPublicState(context);
   }, [
     active,
     activeNode,
@@ -663,7 +670,7 @@ export const DndContext = memo(function DndContext({
     windowRect,
   ]);
 
-  const internalContext = useMemo(() => {
+  useEffect(() => {
     const context: InternalContextDescriptor = {
       activatorEvent,
       activators,
@@ -678,7 +685,7 @@ export const DndContext = memo(function DndContext({
       measureDroppableContainers,
     };
 
-    return context;
+    setInternalState(context);
   }, [
     activatorEvent,
     activators,
@@ -692,21 +699,32 @@ export const DndContext = memo(function DndContext({
   ]);
 
   return (
-    <DndMonitorContext.Provider value={registerMonitorListener}>
-      <InternalContext.Provider value={internalContext}>
-        <PublicContext.Provider value={publicContext}>
-          <ActiveDraggableContext.Provider value={transform}>
-            {children}
-          </ActiveDraggableContext.Provider>
-        </PublicContext.Provider>
-        <RestoreFocus disabled={accessibility?.restoreFocus === false} />
-      </InternalContext.Provider>
+    <>
+      {children}
+      <RestoreFocus disabled={accessibility?.restoreFocus === false} />
       <Accessibility
         {...accessibility}
         hiddenTextDescribedById={draggableDescribedById}
       />
-    </DndMonitorContext.Provider>
+    </>
   );
+
+  // return (
+  //   <DndMonitorContext.Provider value={registerMonitorListener}>
+  //     <InternalContext.Provider value={internalContext}>
+  //       <PublicContext.Provider value={publicContext}>
+  //         <ActiveDraggableContext.Provider value={transform}>
+  //           {children}
+  //         </ActiveDraggableContext.Provider>
+  //       </PublicContext.Provider>
+  //       <RestoreFocus disabled={accessibility?.restoreFocus === false} />
+  //     </InternalContext.Provider>
+  //     <Accessibility
+  //       {...accessibility}
+  //       hiddenTextDescribedById={draggableDescribedById}
+  //     />
+  //   </DndMonitorContext.Provider>
+  // );
 
   function getAutoScrollerOptions() {
     const activeSensorDisablesAutoscroll =

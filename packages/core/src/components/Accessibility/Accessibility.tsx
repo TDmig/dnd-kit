@@ -32,30 +32,30 @@ export function Accessibility({
     setMounted(true);
   }, []);
 
-  useDndMonitor(
-    useMemo<DndMonitorListener>(
-      () => ({
-        onDragStart({active}) {
-          announce(announcements.onDragStart({active}));
-        },
-        onDragMove({active, over}) {
-          if (announcements.onDragMove) {
-            announce(announcements.onDragMove({active, over}));
-          }
-        },
-        onDragOver({active, over}) {
-          announce(announcements.onDragOver({active, over}));
-        },
-        onDragEnd({active, over}) {
-          announce(announcements.onDragEnd({active, over}));
-        },
-        onDragCancel({active, over}) {
-          announce(announcements.onDragCancel({active, over}));
-        },
-      }),
-      [announce, announcements]
-    )
+  const dndMonitorListener = useMemo<DndMonitorListener>(
+    () => ({
+      onDragStart({active}) {
+        announce(announcements.onDragStart({active}));
+      },
+      onDragMove({active, over}) {
+        if (announcements.onDragMove) {
+          announce(announcements.onDragMove({active, over}));
+        }
+      },
+      onDragOver({active, over}) {
+        announce(announcements.onDragOver({active, over}));
+      },
+      onDragEnd({active, over}) {
+        announce(announcements.onDragEnd({active, over}));
+      },
+      onDragCancel({active, over}) {
+        announce(announcements.onDragCancel({active, over}));
+      },
+    }),
+    [announce, announcements]
   );
+
+  useDndMonitor(dndMonitorListener);
 
   if (!mounted) {
     return null;

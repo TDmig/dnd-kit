@@ -1,4 +1,4 @@
-import {useContext, useEffect, useMemo, useRef} from 'react';
+import {useEffect, useMemo, useRef} from 'react';
 import {
   useDraggable,
   useDroppable,
@@ -8,7 +8,6 @@ import {
 import type {Data} from '@dnd-kit/core';
 import {CSS, isKeyboardEvent, useCombinedRefs} from '@dnd-kit/utilities';
 
-import {Context} from '../components';
 import type {Disabled, SortableData, SortingStrategy} from '../types';
 import {isValidIndex} from '../utilities';
 import {
@@ -25,6 +24,7 @@ import type {
   SortableTransition,
 } from './types';
 import {useDerivedTransform} from './utilities';
+import {useSortableState} from '../components/SortableContext';
 
 export interface Arguments
   extends Omit<UseDraggableArguments, 'disabled'>,
@@ -57,7 +57,7 @@ export function useSortable({
     overIndex,
     useDragOverlay,
     strategy: globalStrategy,
-  } = useContext(Context);
+  } = useSortableState();
   const disabled: Disabled = normalizeLocalDisabled(
     localDisabled,
     globalDisabled

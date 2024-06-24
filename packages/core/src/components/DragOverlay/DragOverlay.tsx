@@ -1,7 +1,6 @@
-import React, {useContext} from 'react';
+import React from 'react';
 
 import {applyModifiers, Modifiers} from '../../modifiers';
-import {ActiveDraggableContext} from '../DndContext';
 import {useDndContext} from '../../hooks';
 import {useInitialValue} from '../../hooks/utilities';
 
@@ -14,6 +13,7 @@ import type {PositionedOverlayProps} from './components';
 
 import {useDropAnimation, useKey} from './hooks';
 import type {DropAnimation} from './hooks';
+import {useActiveDraggableState} from '../DndContext/DndContext';
 
 export interface Props
   extends Pick<
@@ -52,7 +52,7 @@ export const DragOverlay = React.memo(
       scrollableAncestorRects,
       windowRect,
     } = useDndContext();
-    const transform = useContext(ActiveDraggableContext);
+    const transform = useActiveDraggableState();
     const key = useKey(active?.id);
     const modifiedTransform = applyModifiers(modifiers, {
       activatorEvent,
@@ -79,30 +79,28 @@ export const DragOverlay = React.memo(
     const ref = initialRect ? dragOverlay.setRef : undefined;
 
     return (
-      <NullifiedContextProvider>
-        <AnimationManager animation={dropAnimation}>
-          {active && key ? (
-            <PositionedOverlay
-              key={key}
-              id={active.id}
-              ref={ref}
-              as={wrapperElement}
-              activatorEvent={activatorEvent}
-              adjustScale={adjustScale}
-              className={className}
-              transition={transition}
-              rect={initialRect}
-              style={{
-                zIndex,
-                ...style,
-              }}
-              transform={modifiedTransform}
-            >
-              {children}
-            </PositionedOverlay>
-          ) : null}
-        </AnimationManager>
-      </NullifiedContextProvider>
+      <AnimationManager animation={dropAnimation}>
+        {active && key ? (
+          <PositionedOverlay
+            key={key}
+            id={active.id}
+            ref={ref}
+            as={wrapperElement}
+            activatorEvent={activatorEvent}
+            adjustScale={adjustScale}
+            className={className}
+            transition={transition}
+            rect={initialRect}
+            style={{
+              zIndex,
+              ...style,
+            }}
+            transform={modifiedTransform}
+          >
+            {children}
+          </PositionedOverlay>
+        ) : null}
+      </AnimationManager>
     );
   }
 );

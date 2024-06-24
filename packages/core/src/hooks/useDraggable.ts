@@ -1,4 +1,4 @@
-import {createContext, useContext, useMemo} from 'react';
+import {useMemo} from 'react';
 import {
   Transform,
   useNodeRef,
@@ -7,10 +7,10 @@ import {
   useUniqueId,
 } from '@dnd-kit/utilities';
 
-import {InternalContext, Data} from '../store';
+import {Data, useInternalState} from '../store';
 import type {UniqueIdentifier} from '../types';
-import {ActiveDraggableContext} from '../components/DndContext';
 import {useSyntheticListeners, SyntheticListenerMap} from './utilities';
+import {useActiveDraggableState} from '../components/DndContext/DndContext';
 
 export interface UseDraggableArguments {
   id: UniqueIdentifier;
@@ -34,8 +34,6 @@ export interface DraggableAttributes {
 
 export type DraggableSyntheticListeners = SyntheticListenerMap | undefined;
 
-const NullContext = createContext<any>(null);
-
 const defaultRole = 'button';
 
 const ID_PREFIX = 'Droppable';
@@ -55,16 +53,17 @@ export function useDraggable({
     ariaDescribedById,
     draggableNodes,
     over,
-  } = useContext(InternalContext);
+  } = useInternalState();
   const {
     role = defaultRole,
     roleDescription = 'draggable',
     tabIndex = 0,
   } = attributes ?? {};
   const isDragging = active?.id === id;
-  const transform: Transform | null = useContext(
-    isDragging ? ActiveDraggableContext : NullContext
-  );
+  let transform: Transform | null = useActiveDraggableState();
+  if (!isDragging) {
+    transform = null;
+  }
   const [node, setNodeRef] = useNodeRef();
   const [activatorNode, setActivatorNodeRef] = useNodeRef();
   const listeners = useSyntheticListeners(activators, id);

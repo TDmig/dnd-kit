@@ -1,8 +1,10 @@
 export {Action} from './actions';
 export {
-  PublicContext,
-  InternalContext,
   defaultInternalContext,
+  useInternalState,
+  usePublicState,
+  setInternalState,
+  setPublicState,
 } from './context';
 export {reducer, getInitialState} from './reducer';
 export type {

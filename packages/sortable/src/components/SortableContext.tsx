@@ -5,6 +5,7 @@ import {useIsomorphicLayoutEffect, useUniqueId} from '@dnd-kit/utilities';
 import type {Disabled, SortingStrategy} from '../types';
 import {getSortedRects, itemsEqual, normalizeDisabled} from '../utilities';
 import {rectSortingStrategy} from '../strategies';
+import {nano, useNano} from 'packages/core/dist/utilities/state/nano-state';
 
 export interface Props {
   children: React.ReactNode;
@@ -16,7 +17,7 @@ export interface Props {
 
 const ID_PREFIX = 'Sortable';
 
-interface ContextDescriptor {
+interface SortableStateDescriptor {
   activeIndex: number;
   containerId: string;
   disabled: Disabled;
@@ -28,7 +29,7 @@ interface ContextDescriptor {
   strategy: SortingStrategy;
 }
 
-export const Context = React.createContext<ContextDescriptor>({
+const defaultSortableState: SortableStateDescriptor = {
   activeIndex: -1,
   containerId: ID_PREFIX,
   disableTransforms: false,
@@ -41,7 +42,12 @@ export const Context = React.createContext<ContextDescriptor>({
     draggable: false,
     droppable: false,
   },
-});
+};
+
+const SortableStateNano = nano<SortableStateDescriptor>(defaultSortableState);
+export const useSortableState = () => useNano(SortableStateNano);
+export const setSortableState = (newSortableState: SortableStateDescriptor) =>
+  SortableStateNano.set(newSortableState);
 
 export function SortableContext({
   children,
@@ -85,18 +91,22 @@ export function SortableContext({
     previousItemsRef.current = items;
   }, [items]);
 
-  const contextValue = useMemo(
-    (): ContextDescriptor => ({
-      activeIndex,
-      containerId,
-      disabled,
-      disableTransforms,
-      items,
-      overIndex,
-      useDragOverlay,
-      sortedRects: getSortedRects(items, droppableRects),
-      strategy,
-    }),
+  useEffect(
+    () => {
+      const context: SortableStateDescriptor = {
+        activeIndex,
+        containerId,
+        disabled,
+        disableTransforms,
+        items,
+        overIndex,
+        useDragOverlay,
+        sortedRects: getSortedRects(items, droppableRects),
+        strategy,
+      };
+
+      setSortableState(context);
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       activeIndex,
@@ -112,5 +122,5 @@ export function SortableContext({
     ]
   );
 
-  return <Context.Provider value={contextValue}>{children}</Context.Provider>;
+  return <>{children}</>;
 }

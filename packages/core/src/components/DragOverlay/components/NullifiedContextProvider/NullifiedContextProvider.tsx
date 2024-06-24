@@ -1,26 +1,19 @@
 import React from 'react';
-import type {Transform} from '@dnd-kit/utilities';
-
-import {InternalContext, defaultInternalContext} from '../../../../store';
-import {ActiveDraggableContext} from '../../../DndContext';
 
 interface Props {
   children: React.ReactNode;
 }
 
-const defaultTransform: Transform = {
-  x: 0,
-  y: 0,
-  scaleX: 1,
-  scaleY: 1,
-};
+// const defaultTransform: Transform = {
+//   x: 0,
+//   y: 0,
+//   scaleX: 1,
+//   scaleY: 1,
+// };
 
+// FIXME: packages/core/src/components/DragOverlay/DragOverlay.tsx
+// was used in overlay to nullify internal and activeDraggable
+// is it still needed??
 export function NullifiedContextProvider({children}: Props) {
-  return (
-    <InternalContext.Provider value={defaultInternalContext}>
-      <ActiveDraggableContext.Provider value={defaultTransform}>
-        {children}
-      </ActiveDraggableContext.Provider>
-    </InternalContext.Provider>
-  );
+  return <>{children}</>;
 }
