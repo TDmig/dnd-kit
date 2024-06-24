@@ -10,6 +10,7 @@ import {Action, Data, useInternalState} from '../store';
 import type {ClientRect, UniqueIdentifier} from '../types';
 
 import {useResizeObserver} from './utilities';
+import {useIsOver, useOverElem} from '../store/context';
 
 interface ResizeObserverConfig {
   /** Whether the ResizeObserver should be disabled entirely */
@@ -26,6 +27,7 @@ interface ResizeObserverConfig {
 export interface UseDroppableArguments {
   id: UniqueIdentifier;
   disabled?: boolean;
+  returnOver?: boolean;
   data?: Data;
   resizeObserverConfig?: ResizeObserverConfig;
 }
@@ -39,12 +41,14 @@ const defaultResizeObserverConfig = {
 export function useDroppable({
   data,
   disabled = false,
+  returnOver = true,
   id,
   resizeObserverConfig,
 }: UseDroppableArguments) {
   const key = useUniqueId(ID_PREFIX);
-  const {active, dispatch, over, measureDroppableContainers} =
-    useInternalState();
+  const {active, dispatch, measureDroppableContainers} = useInternalState();
+  const overElem = useOverElem(returnOver);
+  const isOver = useIsOver(id);
   const previous = useRef({disabled});
   const resizeObserverConnected = useRef(false);
   const rect = useRef<ClientRect | null>(null);
@@ -156,9 +160,9 @@ export function useDroppable({
   return {
     active,
     rect,
-    isOver: over?.id === id,
+    isOver,
     node: nodeRef,
-    over,
+    over: overElem,
     setNodeRef,
   };
 }

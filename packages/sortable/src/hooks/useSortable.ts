@@ -46,6 +46,7 @@ export function useSortable({
   strategy: localStrategy,
   resizeObserverConfig,
   transition = defaultTransition,
+  returnOver = true,
 }: Arguments) {
   const {
     items,
@@ -80,6 +81,7 @@ export function useSortable({
     id,
     data,
     disabled: disabled.droppable,
+    returnOver: false,
     resizeObserverConfig: {
       updateMeasurementsFor: itemsAfterCurrentSortable,
       ...resizeObserverConfig,
@@ -103,6 +105,7 @@ export function useSortable({
       ...defaultAttributes,
       ...userDefinedAttributes,
     },
+    returnOver,
     disabled: disabled.draggable,
   });
   const setNodeRef = useCombinedRefs(setDroppableNodeRef, setDraggableNodeRef);

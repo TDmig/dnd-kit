@@ -11,11 +11,13 @@ import {Data, useInternalState} from '../store';
 import type {UniqueIdentifier} from '../types';
 import {useSyntheticListeners, SyntheticListenerMap} from './utilities';
 import {useActiveDraggableState} from '../components/DndContext/DndContext';
+import { useOverElem } from '../store/context';
 
 export interface UseDraggableArguments {
   id: UniqueIdentifier;
   data?: Data;
   disabled?: boolean;
+  returnOver?: boolean;
   attributes?: {
     role?: string;
     roleDescription?: string;
@@ -42,6 +44,7 @@ export function useDraggable({
   id,
   data,
   disabled = false,
+  returnOver = true,
   attributes,
 }: UseDraggableArguments) {
   const key = useUniqueId(ID_PREFIX);
@@ -52,15 +55,15 @@ export function useDraggable({
     activeNodeRect,
     ariaDescribedById,
     draggableNodes,
-    over,
   } = useInternalState();
+  const overElem = useOverElem(returnOver);
   const {
     role = defaultRole,
     roleDescription = 'draggable',
     tabIndex = 0,
   } = attributes ?? {};
   const isDragging = active?.id === id;
-  let transform: Transform | null = useActiveDraggableState();
+  let transform: Transform | null = useActiveDraggableState(isDragging);
   if (!isDragging) {
     transform = null;
   }
@@ -112,7 +115,7 @@ export function useDraggable({
     isDragging,
     listeners: disabled ? undefined : listeners,
     node,
-    over,
+    over: overElem,
     setNodeRef,
     setActivatorNodeRef,
     transform,

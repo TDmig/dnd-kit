@@ -4,11 +4,7 @@ import {applyModifiers, Modifiers} from '../../modifiers';
 import {useDndContext} from '../../hooks';
 import {useInitialValue} from '../../hooks/utilities';
 
-import {
-  AnimationManager,
-  NullifiedContextProvider,
-  PositionedOverlay,
-} from './components';
+import {AnimationManager, PositionedOverlay} from './components';
 import type {PositionedOverlayProps} from './components';
 
 import {useDropAnimation, useKey} from './hooks';
@@ -52,7 +48,7 @@ export const DragOverlay = React.memo(
       scrollableAncestorRects,
       windowRect,
     } = useDndContext();
-    const transform = useActiveDraggableState();
+    const transform = useActiveDraggableState(true);
     const key = useKey(active?.id);
     const modifiedTransform = applyModifiers(modifiers, {
       activatorEvent,

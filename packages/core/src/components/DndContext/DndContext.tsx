@@ -1,6 +1,5 @@
 import React, {
   memo,
-  createContext,
   useCallback,
   useEffect,
   useMemo,
@@ -28,7 +27,6 @@ import {
   setInternalState,
   setPublicState,
 } from '../../store';
-import {useDndMonitorProvider} from '../DndMonitor';
 import {
   useAutoScroller,
   useCachedNode,
@@ -62,7 +60,7 @@ import {
   rectIntersection,
 } from '../../utilities';
 import {applyModifiers, Modifiers} from '../../modifiers';
-import type {Active, Over} from '../../store/types';
+import type {Active} from '../../store/types';
 import type {
   DragStartEvent,
   DragCancelEvent,
@@ -85,7 +83,8 @@ import {
 } from './hooks';
 import type {MeasuringConfiguration} from './types';
 import {nano, useNano} from '../../utilities/state/nano-state';
-import { dispatchDndMonitorEvent } from '../DndMonitor/useDndMonitorProvider';
+import {dispatchDndMonitorEvent} from '../DndMonitor/useDndMonitorProvider';
+import {setOverElem, useOverElem} from '../../store/context';
 
 export interface Props {
   id?: string;
@@ -128,7 +127,8 @@ export const defaultActiveDraggable: Transform = {
 };
 
 const ActiveDraggableStateNano = nano<Transform>(defaultActiveDraggable);
-export const useActiveDraggableState = () => useNano(ActiveDraggableStateNano);
+export const useActiveDraggableState = (isDragging: boolean) =>
+  useNano(ActiveDraggableStateNano, !isDragging);
 export const setActiveDraggableState = (newActiveDraggableState: Transform) =>
   ActiveDraggableStateNano.set(newActiveDraggableState);
 
@@ -299,6 +299,8 @@ export const DndContext = memo(function DndContext({
     ? getAdjustedRect(draggingNodeRect, modifiedTranslate)
     : null;
 
+  const over = useOverElem();
+
   const collisions =
     active && collisionRect
       ? collisionDetection({
@@ -310,7 +312,6 @@ export const DndContext = memo(function DndContext({
         })
       : null;
   const overId = getFirstCollision(collisions, 'id');
-  const [over, setOver] = useState<Over | null>(null);
 
   // When there is no drag overlay used, we need to account for the
   // window scroll delta
@@ -426,7 +427,7 @@ export const DndContext = memo(function DndContext({
           unstable_batchedUpdates(() => {
             dispatch({type});
             setStatus(Status.Uninitialized);
-            setOver(null);
+            setOverElem(null);
             setActiveSensor(null);
             setActivatorEvent(null);
 
@@ -574,7 +575,7 @@ export const DndContext = memo(function DndContext({
       };
 
       unstable_batchedUpdates(() => {
-        setOver(over);
+        setOverElem(over);
         onDragOver?.(event);
         dispatchDndMonitorEvent({type: 'onDragOver', event});
       });
@@ -681,7 +682,6 @@ export const DndContext = memo(function DndContext({
       },
       dispatch,
       draggableNodes,
-      over,
       measureDroppableContainers,
     };
 
@@ -694,7 +694,6 @@ export const DndContext = memo(function DndContext({
     dispatch,
     draggableDescribedById,
     draggableNodes,
-    over,
     measureDroppableContainers,
   ]);
 

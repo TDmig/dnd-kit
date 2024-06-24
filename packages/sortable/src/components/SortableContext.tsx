@@ -3,9 +3,14 @@ import {useDndContext, ClientRect, UniqueIdentifier} from '@dnd-kit/core';
 import {useIsomorphicLayoutEffect, useUniqueId} from '@dnd-kit/utilities';
 
 import type {Disabled, SortingStrategy} from '../types';
-import {getSortedRects, itemsEqual, normalizeDisabled} from '../utilities';
+import {
+  getSortedRects,
+  itemsEqual,
+  nano,
+  normalizeDisabled,
+  useNano,
+} from '../utilities';
 import {rectSortingStrategy} from '../strategies';
-import {nano, useNano} from 'packages/core/dist/utilities/state/nano-state';
 
 export interface Props {
   children: React.ReactNode;

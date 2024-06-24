@@ -40,3 +40,6 @@ export {
   getScrollPosition,
   isDocumentScrollingElement,
 } from './scroll';
+
+export {nano, useNano} from './state/nano-state';
+export type {Nano} from './state/nano-state';
