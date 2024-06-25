@@ -1,4 +1,4 @@
-import type {UniqueIdentifier} from '@dnd-kit/core';
+import type {UniqueIdentifier} from '@dnd-kit-contextless/core';
 
 export function itemsEqual(a: UniqueIdentifier[], b: UniqueIdentifier[]) {
   if (a === b) {

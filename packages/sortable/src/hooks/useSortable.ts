@@ -4,8 +4,8 @@ import {
   useDroppable,
   UseDraggableArguments,
   UseDroppableArguments,
-} from '@dnd-kit/core';
-import type {Data} from '@dnd-kit/core';
+} from '@dnd-kit-contextless/core';
+import type {Data} from '@dnd-kit-contextless/core';
 import {CSS, isKeyboardEvent, useCombinedRefs} from '@dnd-kit/utilities';
 
 import type {Disabled, SortableData, SortingStrategy} from '../types';

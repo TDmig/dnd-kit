@@ -1,12 +1,18 @@
 {
-  "name": "@dnd-kit/core",
-  "version": "9.0.6",
-  "description": "dnd kit – a lightweight React library for building performant and accessible drag and drop experiences",
+  "name": "@dnd-kit-contextless/core",
+  "version": "9.0.7",
+  "description": "dnd kit – a lightweight React library for building performant and accessible drag and drop experiences. Contextless version abandons use of context for the state",
   "author": "Claudéric Demers",
+  "contributors" : [
+    {
+      "name" : "TDmig",
+      "url" : "https://github.com/TDmig"
+    }
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/clauderic/dnd-kit.git",
+    "url": "git+https://github.com/TDmig/dnd-kit",
     "directory": "packages/core"
   },
   "scripts": {

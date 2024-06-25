@@ -1,4 +1,4 @@
-import type {Active, UniqueIdentifier} from '@dnd-kit/core';
+import type {Active, UniqueIdentifier} from '@dnd-kit-contextless/core';
 import type {Transition} from '@dnd-kit/utilities';
 
 export type SortableTransition = Pick<Transition, 'easing' | 'duration'>;

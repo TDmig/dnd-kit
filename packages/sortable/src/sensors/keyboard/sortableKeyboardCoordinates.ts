@@ -5,7 +5,7 @@ import {
   KeyboardCode,
   DroppableContainer,
   KeyboardCoordinateGetter,
-} from '@dnd-kit/core';
+} from '@dnd-kit-contextless/core';
 import {subtract} from '@dnd-kit/utilities';
 
 import {hasSortableData} from '../../types';

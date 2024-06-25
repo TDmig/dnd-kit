@@ -1,5 +1,9 @@
 import React, {useEffect, useMemo, useRef} from 'react';
-import {useDndContext, ClientRect, UniqueIdentifier} from '@dnd-kit/core';
+import {
+  useDndContext,
+  ClientRect,
+  UniqueIdentifier,
+} from '@dnd-kit-contextless/core';
 import {useIsomorphicLayoutEffect, useUniqueId} from '@dnd-kit/utilities';
 
 import type {Disabled, SortingStrategy} from '../types';
