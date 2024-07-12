@@ -1,12 +1,12 @@
 {
   "name": "@dnd-kit-contextless/sortable",
-  "version": "9.0.8",
+  "version": "9.0.31",
   "description": "Sortable preset and sensors for dnd kit, contextless version",
   "author": "Claudéric Demers",
-  "contributors" : [
+  "contributors": [
     {
-      "name" : "TDmig",
-      "url" : "https://github.com/TDmig"
+      "name": "TDmig",
+      "url": "https://github.com/TDmig"
     }
   ],
   "license": "MIT",
@@ -37,10 +37,10 @@
   },
   "peerDependencies": {
     "react": ">=16.8.0",
-    "@dnd-kit-contextless/core": "^9.0.6"
+    "@dnd-kit-contextless/core": "^9.0.13"
   },
   "devDependencies": {
-    "@dnd-kit-contextless/core": "^9.0.6"
+    "@dnd-kit-contextless/core": "^9.0.13"
   },
   "publishConfig": {
     "access": "public"

@@ -1,20 +1,15 @@
 import React, {useEffect, useMemo, useRef} from 'react';
-import {
-  useDndContext,
-  ClientRect,
-  UniqueIdentifier,
-} from '@dnd-kit-contextless/core';
+import {useDndContext, UniqueIdentifier} from '@dnd-kit-contextless/core';
 import {useIsomorphicLayoutEffect, useUniqueId} from '@dnd-kit/utilities';
 
 import type {Disabled, SortingStrategy} from '../types';
-import {
-  getSortedRects,
-  itemsEqual,
-  nano,
-  normalizeDisabled,
-  useNano,
-} from '../utilities';
+import {getSortedRects, itemsEqual, normalizeDisabled} from '../utilities';
 import {rectSortingStrategy} from '../strategies';
+import {
+  setSortableState,
+  type SortableStateDescriptor,
+} from '../state/sortable-state.nano';
+import {setSortableItems} from '../state';
 
 export interface Props {
   children: React.ReactNode;
@@ -24,39 +19,7 @@ export interface Props {
   disabled?: boolean | Disabled;
 }
 
-const ID_PREFIX = 'Sortable';
-
-interface SortableStateDescriptor {
-  activeIndex: number;
-  containerId: string;
-  disabled: Disabled;
-  disableTransforms: boolean;
-  items: UniqueIdentifier[];
-  overIndex: number;
-  useDragOverlay: boolean;
-  sortedRects: ClientRect[];
-  strategy: SortingStrategy;
-}
-
-const defaultSortableState: SortableStateDescriptor = {
-  activeIndex: -1,
-  containerId: ID_PREFIX,
-  disableTransforms: false,
-  items: [],
-  overIndex: -1,
-  useDragOverlay: false,
-  sortedRects: [],
-  strategy: rectSortingStrategy,
-  disabled: {
-    draggable: false,
-    droppable: false,
-  },
-};
-
-const SortableStateNano = nano<SortableStateDescriptor>(defaultSortableState);
-export const useSortableState = () => useNano(SortableStateNano);
-export const setSortableState = (newSortableState: SortableStateDescriptor) =>
-  SortableStateNano.set(newSortableState);
+export const ID_PREFIX = 'Sortable';
 
 export function SortableContext({
   children,
@@ -107,7 +70,6 @@ export function SortableContext({
         containerId,
         disabled,
         disableTransforms,
-        items,
         overIndex,
         useDragOverlay,
         sortedRects: getSortedRects(items, droppableRects),
@@ -115,6 +77,7 @@ export function SortableContext({
       };
 
       setSortableState(context);
+      setSortableItems(items);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [

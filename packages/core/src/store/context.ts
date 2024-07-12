@@ -60,7 +60,6 @@ export const setOverElem = (newOverElem: Over | null) => {
 
 type OverMap = Record<UniqueIdentifier, Nano<boolean>>;
 
-const falseNano = nano<boolean>(false);
 const overMapNano = nano<OverMap>({});
 const useOverMap = () => useNano(overMapNano);
 
@@ -68,7 +67,6 @@ export const moveOverInMap = (
   toId: UniqueIdentifier | null,
   fromId: UniqueIdentifier | null
 ) => {
-  console.log({toId, fromId});
   const currMap = overMapNano.get();
   if (fromId !== null && currMap[fromId]) currMap[fromId].set(false);
   if (toId !== null) {
@@ -76,26 +74,27 @@ export const moveOverInMap = (
       currMap[toId].set(true);
     } else {
       currMap[toId] = nano(true);
-      overMapNano.set({...currMap});
     }
   }
 };
 
 export const useIsOver = (id: UniqueIdentifier) => {
   const overMap = useOverMap();
-  return useNano(overMap[id] ?? falseNano);
+  let overNano = overMap[id];
+  if (!overNano) {
+    overNano = nano(false);
+    overMap[id] = overNano;
+  }
+
+  return useNano(overNano);
 };
 
 const InternalStateNano = nano<InternalContextDescriptor>(
   defaultInternalContext
 );
 export const useInternalState = () => useNano(InternalStateNano);
-export const setInternalState = (
-  newInternalState: InternalContextDescriptor
-) => {
-  console.log({newInternalState});
+export const setInternalState = (newInternalState: InternalContextDescriptor) =>
   InternalStateNano.set(newInternalState);
-};
 
 const PublicStateNano = nano<PublicContextDescriptor>(defaultPublicContext);
 export const usePublicState = () => useNano(PublicStateNano);

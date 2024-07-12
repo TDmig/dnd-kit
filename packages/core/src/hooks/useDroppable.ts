@@ -19,7 +19,7 @@ interface ResizeObserverConfig {
    * Specify an array of `UniqueIdentifier` of droppable containers that should also be re-measured
    * when this droppable container resizes. Specifying an empty array re-measures all droppable containers.
    */
-  updateMeasurementsFor?: UniqueIdentifier[];
+  getUpdateMeasurementsFor?: () => UniqueIdentifier[];
   /** Represents the debounce timeout between when resize events are observed and when elements are re-measured */
   timeout?: number;
 }
@@ -55,13 +55,12 @@ export function useDroppable({
   const callbackId = useRef<NodeJS.Timeout | null>(null);
   const {
     disabled: resizeObserverDisabled,
-    updateMeasurementsFor,
+    getUpdateMeasurementsFor,
     timeout: resizeObserverTimeout,
   } = {
     ...defaultResizeObserverConfig,
     ...resizeObserverConfig,
   };
-  const ids = useLatestValue(updateMeasurementsFor ?? id);
   const handleResize = useCallback(
     () => {
       if (!resizeObserverConnected.current) {
@@ -76,9 +75,8 @@ export function useDroppable({
       }
 
       callbackId.current = setTimeout(() => {
-        measureDroppableContainers(
-          Array.isArray(ids.current) ? ids.current : [ids.current]
-        );
+        const ids = getUpdateMeasurementsFor ? getUpdateMeasurementsFor() : id;
+        measureDroppableContainers(Array.isArray(ids) ? ids : [ids]);
         callbackId.current = null;
       }, resizeObserverTimeout);
     },

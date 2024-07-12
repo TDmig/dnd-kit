@@ -24,7 +24,8 @@ import type {
   SortableTransition,
 } from './types';
 import {useDerivedTransform} from './utilities';
-import {useSortableState} from '../components/SortableContext';
+import {useSortableState} from '../state/sortable-state.nano';
+import {useSortableItemIndex, useSortableItems} from '../state';
 
 export interface Arguments
   extends Omit<UseDraggableArguments, 'disabled'>,
@@ -49,7 +50,6 @@ export function useSortable({
   returnOver = true,
 }: Arguments) {
   const {
-    items,
     containerId,
     activeIndex,
     disabled: globalDisabled,
@@ -59,11 +59,12 @@ export function useSortable({
     useDragOverlay,
     strategy: globalStrategy,
   } = useSortableState();
+  const items = useSortableItems();
   const disabled: Disabled = normalizeLocalDisabled(
     localDisabled,
     globalDisabled
   );
-  const index = items.indexOf(id);
+  const {curr: index} = useSortableItemIndex(id);
   const data = useMemo<SortableData & Data>(
     () => ({sortable: {containerId, index, items}, ...customData}),
     [containerId, customData, index, items]
@@ -83,7 +84,7 @@ export function useSortable({
     disabled: disabled.droppable,
     returnOver: false,
     resizeObserverConfig: {
-      updateMeasurementsFor: itemsAfterCurrentSortable,
+      getUpdateMeasurementsFor: () => itemsAfterCurrentSortable,
       ...resizeObserverConfig,
     },
   });
@@ -129,6 +130,7 @@ export function useSortable({
         index,
       })
     : null;
+
   const newIndex =
     isValidIndex(activeIndex) && isValidIndex(overIndex)
       ? getNewIndex({id, items, activeIndex, overIndex})
